@@ -4,6 +4,7 @@ import baggianalysis as ba
 import numpy as np
 import sys
 
+import utils
 import autoencoder as ae
 
 class MyParser(ba.BaseParser):
@@ -27,14 +28,6 @@ class MyParser(ba.BaseParser):
         return syst
             
 
-COLORS = ["red", "green", "blue", "yellow", "cyan", "magenta", "orange", "violet", "brown", "pink", "black", "grey"]            
-def print_cogli1_conf(system, colors, filename):
-    with open(filename, "w") as output:
-        print(".Box:%lf,%lf,%lf" % tuple(system.box), file=output)
-        for i, p in enumerate(system.particles()):
-            print("%lf %lf %lf @ 0.5 C[%s]" % (p.position[0], p.position[1], p.position[2], colors[i]), file=output)
-            
-    
 if len(sys.argv) < 2:
     print("Usage is %s input [bop_file]" % sys.argv[0], file=sys.stderr)
     exit(0)
@@ -153,8 +146,8 @@ while Ng > 1:
 with open("baudry_%s" % input_filename, "w") as baudry_file:
     for Ng in sorted(results.keys()):
         print(Ng, results[Ng][1], file=baudry_file)
-        colors = list(map(lambda x: COLORS[np.argmax(x)], results[Ng][0]))
-        print_cogli1_conf(syst, colors, "gauss_%d_%s" % (Ng, input_filename))
+        colors = list(map(lambda x: utils.COLORS[np.argmax(x)], results[Ng][0]))
+        utils.print_cogli1_conf(syst, colors, "gauss_%d_%s" % (Ng, input_filename))
         
         with open("group_%d_%s" % (Ng, input_filename), "w") as group_file:
             colors = np.array(colors)
