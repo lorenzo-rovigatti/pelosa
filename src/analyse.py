@@ -9,9 +9,9 @@ import autoencoder as ae
 
 class MyParser(ba.BaseParser):
     def __init__(self):
-        pass
+        ba.BaseParser.__init__(self)
     
-    def parse(self, conf):
+    def _parse_file(self, conf):
         syst = ba.System()
         
         with open(conf) as f:
@@ -44,7 +44,8 @@ if len(sys.argv) < 3:
     nf.set_neighbours(syst.particles(), syst.box)
     
     bop_obs = ba.BondOrderParameters({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12})
-    bops = np.array(bop_obs.compute(syst))
+    bop_obs.analyse_system(syst)
+    bops = np.array(bop_obs.result())
     np.savetxt("bops_%s" % input_filename, bops)
 else:
     bops = np.loadtxt(sys.argv[2])
