@@ -11,6 +11,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import numpy as np
+import os
 import sys
 import glob
 from sklearn.preprocessing import StandardScaler
@@ -19,7 +20,7 @@ import autoencoder as ae
 
 if __name__ == '__main__':
     if len(sys.argv) < 4:
-        print("Usage is %s pattern n_columns normalise" % sys.argv[0], file=sys.stderr)
+        print("Usage is %s pattern n_columns normalise [SANN_neigh_dir]" % sys.argv[0], file=sys.stderr)
         exit(0)
 
     bops = {}
@@ -29,7 +30,16 @@ if __name__ == '__main__':
         timestep = int(filename.split("_")[-1])
         with open(filename) as f:
             bops[timestep] = np.loadtxt(filename)[:,0:n_columns]
-            N_per_conf = bops[timestep].shape[0]            
+            N_per_conf = bops[timestep].shape[0]
+            
+    if len(sys.argv) > 4:
+        SANN_neighs = []
+        SANN_neigh_dir = sys.argv[4]
+        base = os.path.join(SANN_neigh_dir, "sann_neighs_")
+        for timestep in bops:
+            SANN_neighs.extend(np.loadtxt(base + str(timestep)))
+    else:
+        SANN_neighs = None
         
     all_bops = np.vstack(list(bops.values()))
     normalise = bool(sys.argv[3])
@@ -88,11 +98,14 @@ if __name__ == '__main__':
     N_conf = 0
     with open("time_series.dat", "w") as out_file, open("bops_particle_A.dat", "w") as A_file, open("bops_particle_B.dat", "w") as B_file:
         for i, bop in enumerate(all_encoded_bops):
+            to_print = " ".join(str(x) for x in bop)
+            if SANN_neighs != None:
+                to_print += " " + SANN_neighs[i]
             if kmeans.labels_[i] == 0:
                 f_0 += 1
-                print(" ".join(str(x) for x in bop), file=A_file)
+                print(to_print, file=A_file)
             else:
-                print(" ".join(str(x) for x in bop), file=B_file)
+                print(to_print, file=B_file)
                 
             if i > 0 and i % N_per_conf == 0:
                 f_0 /= N_per_conf
@@ -101,4 +114,3 @@ if __name__ == '__main__':
                 print("", file=B_file)
                 
                 N_conf += 1
-
