@@ -5,19 +5,20 @@ import baggianalysis as ba
 import sys
 import os
 
-def print_dir_bops_to_dir(input_dir, pattern, output_dir):
+def print_dir_bops_to_dir(input_dir, pattern, output_dir, nf=None):
     parser = parsers.Tip4pIceParser()
     # we need a FullTrajectory (as opposed to a LazyTrajectory) because we later use systems as dictionary keys
     trajectory = ba.FullTrajectory(parser)
     trajectory.initialise_from_folder(input_dir, pattern, True)
     
-    syst = trajectory.next_frame()
-    while syst != None:
+    if nf == None:
         #nf = ba.CutoffFinder(1.3)
         #nf = ba.SANNFinder(3.0, ba.SANNFinder.SYMMETRISE_BY_REMOVING)
-        nf = ba.FixedNumberFinder(12)
+        nf = ba.FixedNumberFinder(4)
+
+    syst = trajectory.next_frame()
+    while syst != None:
         nf.set_neighbours(syst.particles(), syst.box)
-        
         orders = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30}
         bop_obs = ba.BondOrderParameters(orders)
         bop_obs.analyse_system(syst)
