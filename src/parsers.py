@@ -28,7 +28,7 @@ class Tip4pIceParser(ba.BaseParser):
                 spl = [x.strip() for x in line.split()]
                 if spl[1] == "OW1":
                     pos = [float(x) for x in spl[3:6]]
-                    particle = ba.Particle("0", pos, [0., 0., 0.])
+                    particle = ba.Particle(syst.available_index(), "0", pos)
                     syst.add_particle(particle)
                     
             syst.box = [float(x.strip()) for x in f.readline().split()]
